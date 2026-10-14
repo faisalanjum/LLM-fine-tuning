@@ -1,0 +1,4 @@
+# model weights are hundreds of MB; GitHub rejects files over 100 MB
+*.pth
+*.pt
+.ipynb_checkpoints/
