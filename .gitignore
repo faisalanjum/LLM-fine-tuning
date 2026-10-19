@@ -1,5 +1,6 @@
 # model weights are hundreds of MB; GitHub rejects files over 100 MB
 *.pth
 *.pt
+*.safetensors
 .ipynb_checkpoints/
 .venv/
