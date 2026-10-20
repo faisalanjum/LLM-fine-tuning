@@ -1,4 +1,6 @@
-# How §6 saves a run. Pseudocode — commented out; uncomment and fill in when training.
+# REFERENCE ONLY — do not run this file.
+# This is a copy-paste template for the §6 "Save" cell of a notebook (e.g. 03_instruction.ipynb).
+# Paste it into that cell, uncomment, and fill in the ... values.
 #
 # import json, os, torch
 #
