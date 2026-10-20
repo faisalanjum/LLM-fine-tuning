@@ -4,3 +4,7 @@
 *.safetensors
 .ipynb_checkpoints/
 .venv/
+
+# Training practice: datasets and experiment outputs
+Training/data/downloads/
+Training/runs/
