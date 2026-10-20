@@ -5,6 +5,6 @@
 .ipynb_checkpoints/
 .venv/
 
-# Training practice: datasets and experiment outputs
+# Training practice: downloaded datasets are regenerable (tiny samples go in data/examples/)
 Training/data/downloads/
-Training/runs/
+# Note: Training/runs/ IS tracked (small text records); heavy checkpoints stay out via *.pth above

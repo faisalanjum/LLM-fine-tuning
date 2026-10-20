@@ -1,0 +1,7 @@
+{
+  "model": "<model-name>",
+  "seed": null,
+  "lr": null,
+  "epochs": null,
+  "batch_size": null
+}
