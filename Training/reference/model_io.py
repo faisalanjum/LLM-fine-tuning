@@ -1,5 +1,5 @@
 # the model's inputs/outputs + checkpoint I/O: text_to_token_ids, token_ids_to_text, save_checkpoint, load_checkpoint (and later a load_model helper)
-
+import torch
 
 
 
@@ -20,7 +20,6 @@ def download_weights(repo="openai-community/gpt2"):
 # [1, N] = one example with N tokens.
 # Text (str) → token-ID tensor [1, N], e.g. tensor([[10, 20, 30]]).
 def text_to_token_ids(text, tokenizer):
-  import torch
   encoded = tokenizer.encode(text, allowed_special={'<|endoftext|>'})
   encoded_tensor = torch.tensor(encoded).unsqueeze(0)
   return encoded_tensor
