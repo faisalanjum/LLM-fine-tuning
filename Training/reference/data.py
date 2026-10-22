@@ -20,4 +20,16 @@ def load_instruction_data():
 
 
 
-    
+def load_pretraining_data(
+    file_name="the-verdict.txt",
+    url="https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/main/ch02/01_main-chapter-code/the-verdict.txt",
+):
+    path = Path(__file__).resolve().parent.parent / "data/downloads" / file_name
+
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        path.write_bytes(response.content)
+
+    return path.read_text(encoding="utf-8")
