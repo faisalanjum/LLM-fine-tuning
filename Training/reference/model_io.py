@@ -28,3 +28,7 @@ def text_to_token_ids(text, tokenizer):
 def token_ids_to_text(token_ids, tokenizer):
   flat = token_ids.squeeze(0)
   return tokenizer.decode(flat.tolist())
+
+
+def count_trainable_params(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)

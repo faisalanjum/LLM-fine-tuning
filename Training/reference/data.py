@@ -5,6 +5,9 @@ import requests
 from pathlib import Path
 from zipfile import ZipFile
 from io import BytesIO
+import pandas as pd
+import torch
+from torch.utils.data import Dataset
 
 
 def load_instruction_data():
@@ -53,3 +56,63 @@ def load_spam_data():
             path.write_bytes(archive.read("SMSSpamCollection"))
 
     return pd.read_csv(path, sep="\t", header=None, names=["Label", "Text"])
+
+
+def create_balanced_dataset(df):
+    num_spam       = len(df[df['Label'] == 'spam'])
+    ham_sample     = df[df['Label'] == 'ham'].sample(num_spam, random_state=123)
+    balanced_df    = pd.concat([ham_sample, df[df['Label'] == 'spam']])
+    return balanced_df
+
+
+def random_split(df, train_frac, val_frac):
+    df        = df.sample(frac=1, random_state=123).reset_index(drop=True)
+    train_end = int(len(df) * train_frac)
+    val_end   = train_end + int(len(df) * val_frac)
+
+    train_df  = df.iloc[:train_end]
+    val_df    = df.iloc[train_end:val_end]
+    test_df   = df.iloc[val_end:]
+
+    return train_df, val_df, test_df
+
+
+class SpamDataset(Dataset):
+
+    def __init__(self, data, tokenizer, max_length = None):
+        
+        self.data = data
+        self.pad_token_id = [tokenizer.eot_token]
+        self.encoded_texts =[tokenizer.encode(text) for text in self.data['Text']]
+
+        if max_length is None:
+            self.max_length = self._longest_encoded_length()
+
+        else:
+            self.max_length = max_length
+            self.encoded_texts = [encoded_text[:self.max_length] for encoded_text in self.encoded_texts]
+
+
+        self.encoded_texts = [encoded_text + self.pad_token_id * 
+                             (self.max_length - len(encoded_text)) 
+                             for encoded_text in self.encoded_texts]
+
+
+    def __getitem__(self,index):
+        input_tokens  = torch.tensor(self.encoded_texts[index], dtype=torch.long)
+        target_tokens = torch.tensor(self.data.iloc[index]['Label'], dtype=torch.long)
+        
+        return input_tokens, target_tokens
+
+    
+    def __len__(self):
+        return len(self.data)
+
+    def _longest_encoded_length(self):
+        max_length = 0
+        for encoded_text in self.encoded_texts:
+            encoded_length = len(encoded_text)
+            if encoded_length > max_length:
+                max_length = encoded_length
+        return max_length
+
