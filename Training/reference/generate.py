@@ -68,3 +68,27 @@ def generate_and_print_sample(model, tokenizer, device, start_context):
     decoded_text = token_ids_to_text(generated_ids, tokenizer)
     print(decoded_text.replace("\n", " "))
     model.train()
+
+
+def classify_review(txt, model, tokenizer, device, max_length=None):
+
+    model.eval()
+    
+    encoded_txt = tokenizer.encode(txt)
+    model_context_length = model.pos_emb.weight.shape[0]
+    pad_token_id = tokenizer.eot_token
+    
+    if max_length is not None:
+        max_length = min(max_length, model_context_length)
+    else:
+        max_length = model_context_length
+    
+    encoded_txt = encoded_txt[:max_length]
+    encoded_txt += [pad_token_id]*(max_length - len(encoded_txt))
+
+    encoded_tensor = torch.tensor(encoded_txt).unsqueeze(0).to(device)
+    with torch.no_grad():
+        logits = model(encoded_tensor)[:,-1,:]
+    predicted_label = torch.argmax(logits, dim =-1).item()
+
+    return "spam" if predicted_label == 1 else "not spam"

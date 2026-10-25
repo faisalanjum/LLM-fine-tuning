@@ -1,6 +1,7 @@
 #  metrics (accuracy, perplexity) and, when needed, the optional Qwen judge.
 
 import requests
+import torch
 
 BASE = "http://localhost:11434"
 
@@ -20,3 +21,32 @@ def query_model(prompt, model, think=None):
     r = requests.post(f"{BASE}/api/chat", json=payload, timeout=120)
     r.raise_for_status()
     return r.json()["message"]["content"]
+
+
+def calc_accuracy_loader(data_loader, model, device, num_batches = None):
+    model.eval()
+
+    if num_batches is None:
+        num_batches = len(data_loader)        
+    else:
+        num_batches = min(num_batches, len(data_loader))
+
+    correct_prediction = 0
+    num_examples    = 0
+
+    for i, (input_batch, label_batch) in enumerate(data_loader):
+        if i < num_batches:
+            input_batch = input_batch.to(device)
+            label_batch = label_batch.to(device)
+            
+            with torch.no_grad():
+                logits  = model(input_batch)[:,-1,:]
+            predictions = torch.argmax(logits, dim = -1)
+
+            num_examples         += input_batch.shape[0]
+            correct_prediction   += ((label_batch == predictions).sum().item())
+
+        else:
+            break
+    
+    return correct_prediction/num_examples

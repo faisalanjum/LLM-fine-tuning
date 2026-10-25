@@ -10,8 +10,16 @@ def calc_loss_batch(input_batch, target_batch, model, device):
 
     return loss
 
+# Override Pretraining loss since now we are only concerned with final Output
+def calc_loss_batch_classification(input_batch, target_batch, model, device):
+    input_batch  = input_batch.to(device)
+    target_batch = target_batch.to(device)
 
-def calc_loss_loader(data_loader, model, device, num_batches=None):
+    logits = model(input_batch)[:,-1,:]
+    loss = torch.nn.functional.cross_entropy(logits, target_batch)
+    return loss
+
+def calc_loss_loader(data_loader, model, device, loss_fn=calc_loss_batch, num_batches=None):
 
     total_loss = 0.0
 
@@ -24,7 +32,7 @@ def calc_loss_loader(data_loader, model, device, num_batches=None):
 
     for i, (input_batch, target_batch) in enumerate(data_loader):
         if i < num_batches:
-            loss = calc_loss_batch(input_batch, target_batch, model, device)
+            loss = loss_fn(input_batch, target_batch, model, device)
             total_loss += loss.item()
         else:
             break
