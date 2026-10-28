@@ -24,6 +24,20 @@ def load_instruction_data():
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def load_dpo_data():
+    path = Path(__file__).resolve().parent.parent / "data/downloads/instruction-data-with-preference.json"
+
+    # Download and save only if the file is missing.
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        url = "https://raw.githubusercontent.com/rasbt/LLMs-from-scratch/main/ch07/04_preference-tuning-with-dpo/instruction-data-with-preference.json"
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        path.write_text(response.text, encoding="utf-8")
+
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 
 def load_pretraining_data(
     file_name="the-verdict.txt",
